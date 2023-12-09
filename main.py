@@ -1,7 +1,14 @@
 import cv2
 import datetime
 from pygame import mixer
+import threading
 import time
+
+def countdown():
+    for i in range(10, 0, -1):
+        print(i)
+        time.sleep(1)
+    print("사진을 찍습니다.")
 
 def record_video_and_capture_image():
     cap = cv2.VideoCapture(0)
@@ -14,11 +21,12 @@ def record_video_and_capture_image():
     fourcc = cv2.VideoWriter_fourcc(*'XVID')
     out = None
     img_count = 0
+    video_count = 0
     is_recording = False
 
     # 사운드 설정
     mixer.init()
-    shutter_sound = mixer.Sound('shutter_sound.mp3')
+    shutter_sound = mixer.Sound("./sound/shutter_sound.mp3")
 
     while cap.isOpened():
         ret, frame = cap.read()
@@ -32,24 +40,19 @@ def record_video_and_capture_image():
         if key == ord('q'):
             break
         elif key == ord('c'):
-            print("10초 후에 사진을 찍습니다.")
-            for i in range(1000, 0, -1):  # 10초부터 1초까지 카운트다운
-                if i%100==0:
-                    print(i//100)
-                time.sleep(0.01)  # 1초마다 화면 갱신
+            t = threading.Thread(target=countdown)
+            t.start()
+            while t.is_alive():
                 ret, frame = cap.read()
-                if not ret:
-                    print("카메라를 열 수 없습니다.")
-                    break
                 cv2.imshow('영상 녹화 및 사진 촬영', frame)
                 if cv2.waitKey(1) == ord('q'):  # 'q'를 누르면 종료
                     cap.release()
                     cv2.destroyAllWindows()
                     return
             shutter_sound.play()
-            img_name = f"{datetime.datetime.now().strftime('%Y%m%d%H%M%S')}_capture_{img_count}.png"
-            cv2.imwrite(img_name, frame)
-            print(f"{img_name} 사진 저장 완료!")
+            img_save_path = f"./image/{datetime.datetime.now().strftime('%Y%m%d%H%M%S')}_Image_{img_count}.png"
+            cv2.imwrite(img_save_path, frame)
+            print(f"{img_save_path} 사진 저장 완료!")
             img_count += 1
         elif key == ord('r'):
             if is_recording:
@@ -58,8 +61,10 @@ def record_video_and_capture_image():
                 is_recording = False
             else:
                 print("녹화 시작")
-                out = cv2.VideoWriter('output.mp4', fourcc, 20.0, (int(cap.get(3)), int(cap.get(4))))
+                video_save_path = f"./video/{datetime.datetime.now().strftime('%Y%m%d%H%M%S')}_video_{video_count}.mp4"
+                out = cv2.VideoWriter(video_save_path, fourcc, 20.0, (int(cap.get(3)), int(cap.get(4))))
                 is_recording = True
+                video_count += 1
 
         if is_recording:
             out.write(frame)
