@@ -19,6 +19,7 @@ fourcc = cv2.VideoWriter_fourcc(*'XVID')
 out = cv2.VideoWriter()
 
 while True:
+    index= 0 if capture_count == 0 else capture_count//4
     ret, frame = cap.read()
     if not ret:
         print("웹캠에서 영상을 받아올 수 없습니다.")
@@ -36,11 +37,11 @@ while True:
 
     # 'c'를 눌러 레코딩 시작
     if key == ord('c') and not is_recording:
-        save_folder = f"./video&image/{datetime.datetime.now().strftime('%Hh-%Mmin-%Ssec')}" # 저장할 폴더명
-        os.makedirs(save_folder,exist_ok=True) # 폴더 생성
+        save_video_folder = f"./video/{index}" # 저장할 video 폴더명
+        os.makedirs(save_video_folder,exist_ok=True) # 폴더 생성
 
         video_name = "video.avi"
-        save_video_path = f"{save_folder}/{video_name}"
+        save_video_path = f"{save_video_folder}/{video_name}"
 
         is_recording = True
         out = cv2.VideoWriter(save_video_path, fourcc, acc_fps, (frame.shape[1], frame.shape[0]))
@@ -50,10 +51,13 @@ while True:
     if is_recording:
         out.write(frame)
 
+        save_image_folder = f"./image/{index}" # 저장할 image 폴더명
+        os.makedirs(save_image_folder,exist_ok=True) # 폴더 생성
+
         # 5초마다 사진 촬영 & 사진 4장이면 녹화 종료
         if time.time() - last_capture_time > capture_interval:
             photo_name = f'picture_{capture_count%4}.jpg' #캡처 번호는 0,1,2,3으로 나온다.
-            save_photo_path = f"{save_folder}/{photo_name}"
+            save_photo_path = f"{save_image_folder}/{photo_name}"
             cv2.imwrite(save_photo_path, frame)
             print(f'{save_photo_path} 저장됨')
             last_capture_time = time.time()
