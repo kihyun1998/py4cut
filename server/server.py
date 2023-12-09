@@ -3,8 +3,10 @@
 uvicorn ./server.py:app --reload
 """
 from fastapi import FastAPI, HTTPException
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, StreamingResponse
 import os
+import qrcode
+import io
 
 app = FastAPI()
 
@@ -19,6 +21,9 @@ async def get_videos_list():
     videos = [os.path.join(folder, "video.avi") for folder in folders if os.path.exists(os.path.join(video_folder, folder, "video.avi"))]
     return {"videos": videos}
 
+"""
+video 다운로드 API
+"""
 @app.get("/videos/{video_index}")
 async def download_video(video_index: int):
     # 해당 인덱스의 타깃 비디오 경로를 찾음
@@ -29,6 +34,9 @@ async def download_video(video_index: int):
     else:
         raise HTTPException(status_code=404, detail="Video not found")
 
+"""
+이미지 다운로드 API
+"""
 @app.get("/images/{image_index}")
 async def download_image(image_index: int):
     # 이미지 파일 경로를 생성
@@ -39,4 +47,17 @@ async def download_image(image_index: int):
         return FileResponse(target_image_path, media_type='image/jpeg', filename=image_file)
     else:
         raise HTTPException(status_code=404, detail="Image not found")
-
+    
+"""
+QR코드 생성 API
+"""
+@app.get("/qr/{video_index}")
+async def get_video_qr(video_index: str):
+    # 여기에서는 로컬 호스트와 포트를 사용했지만, 
+    # 실제 배포 환경에 맞는 호스트 주소와 포트로 변경해야 합니다.
+    video_url = f"http://http://127.0.0.1:8000/videos/{video_index}"
+    qr_img = qrcode.make(video_url)
+    img_bytes = io.BytesIO()
+    qr_img.save(img_bytes)
+    img_bytes.seek(0)
+    return StreamingResponse(img_bytes, media_type="image/png")
