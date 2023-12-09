@@ -40,7 +40,7 @@ while True:
         save_video_folder = f"./video/{index}" # 저장할 video 폴더명
         os.makedirs(save_video_folder,exist_ok=True) # 폴더 생성
 
-        video_name = "video.avi"
+        video_name = f"video_{index}.avi"
         save_video_path = f"{save_video_folder}/{video_name}"
 
         is_recording = True
@@ -56,7 +56,7 @@ while True:
 
         # 5초마다 사진 촬영 & 사진 4장이면 녹화 종료
         if time.time() - last_capture_time > capture_interval:
-            photo_name = f'picture_{capture_count%4}.jpg' #캡처 번호는 0,1,2,3으로 나온다.
+            photo_name = f'picture_{datetime.datetime.now().strftime('%Hh-%Mmin-%Ssec')}_{capture_count%4}.jpg' #캡처 번호는 0,1,2,3으로 나온다.
             save_photo_path = f"{save_image_folder}/{photo_name}"
             cv2.imwrite(save_photo_path, frame)
             print(f'{save_photo_path} 저장됨')
