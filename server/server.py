@@ -1,6 +1,10 @@
 """
-실행방법은
+** 실행방법은
 uvicorn ./server.py:app --reload
+
+** ngrok 활성화 해야 public으로 작동한다.
+ngrok http 8000
+
 """
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse, StreamingResponse
@@ -55,7 +59,7 @@ QR코드 생성 API
 async def get_video_qr(video_index: str):
     # 여기에서는 로컬 호스트와 포트를 사용했지만, 
     # 실제 배포 환경에 맞는 호스트 주소와 포트로 변경해야 합니다.
-    video_url = f"http://http://127.0.0.1:8000/videos/{video_index}"
+    video_url = f"https://68c3-118-37-47-3.ngrok-free.app/videos/{video_index}"
     qr_img = qrcode.make(video_url)
     img_bytes = io.BytesIO()
     qr_img.save(img_bytes)
