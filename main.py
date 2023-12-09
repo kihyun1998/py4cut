@@ -7,7 +7,7 @@ import datetime
 cap = cv2.VideoCapture(0)
 is_recording = False
 capture_count = 0  # 촬영된 사진 수
-last_capture_time = time.time()
+
 capture_interval = 3  # 사진 촬영 간격 (초)
 
 # 영상 녹화 배속 설정
@@ -37,6 +37,8 @@ while True:
 
     # 'c'를 눌러 레코딩 시작
     if key == ord('c') and not is_recording:
+        last_capture_time = time.time()
+
         save_video_folder = f"./video/{index}" # 저장할 video 폴더명
         os.makedirs(save_video_folder,exist_ok=True) # 폴더 생성
 
