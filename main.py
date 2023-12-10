@@ -56,8 +56,11 @@ while True:
         save_image_folder = f"./image/{index}" # 저장할 image 폴더명
         os.makedirs(save_image_folder,exist_ok=True) # 폴더 생성
 
-        # 5초마다 사진 촬영 & 사진 4장이면 녹화 종료
-        if time.time() - last_capture_time > capture_interval:
+        # [이전코드]3초마다 촬영
+        # if time.time() - last_capture_time > capture_interval:
+
+        # 기능 변경 > s를 누르면 사진 촬영, 4장 촬영하면 녹화 종료
+        if key == ord('s'):
             photo_name = f'picture_{datetime.datetime.now().strftime('%Hh-%Mmin-%Ssec')}_{capture_count%4}.jpg' #캡처 번호는 0,1,2,3으로 나온다.
             save_photo_path = f"{save_image_folder}/{photo_name}"
             cv2.imwrite(save_photo_path, frame)
