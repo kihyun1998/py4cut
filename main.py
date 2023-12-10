@@ -2,6 +2,7 @@ import cv2
 import time
 import os
 import datetime
+from pygame import mixer
 
 # 웹캠 설정
 cap = cv2.VideoCapture(0)
@@ -17,6 +18,10 @@ acc_fps = int(fps*1.5)
 # 비디오 레코더 설정
 fourcc = cv2.VideoWriter_fourcc(*'XVID')
 out = cv2.VideoWriter()
+
+# 사진 촬영 사운드 설정
+mixer.init()
+shutter_sound = mixer.Sound('./sound/shutter_sound.mp3')
 
 while True:
     index= 0 if capture_count == 0 else capture_count//4
@@ -35,9 +40,9 @@ while True:
     if key == ord('q'):
         break
 
-    # 'c'를 눌러 레코딩 시작
-    if key == ord('c') and not is_recording:
-        last_capture_time = time.time()
+    # 's'를 눌러 레코딩 시작
+    if key == ord('s') and not is_recording:
+        # last_capture_time = time.time()
 
         save_video_folder = f"./video/{index}" # 저장할 video 폴더명
         os.makedirs(save_video_folder,exist_ok=True) # 폴더 생성
@@ -59,14 +64,18 @@ while True:
         # [이전코드]3초마다 촬영
         # if time.time() - last_capture_time > capture_interval:
 
-        # 기능 변경 > s를 누르면 사진 촬영, 4장 촬영하면 녹화 종료
-        if key == ord('s'):
+        # 기능 변경 
+        # c를 누르면 사진 촬영, 4장 촬영하면 녹화 종료
+        if key == ord('c'):
             photo_name = f'picture_{datetime.datetime.now().strftime('%Hh-%Mmin-%Ssec')}_{capture_count%4}.jpg' #캡처 번호는 0,1,2,3으로 나온다.
             save_photo_path = f"{save_image_folder}/{photo_name}"
             cv2.imwrite(save_photo_path, frame)
+            shutter_sound.play()
             print(f'{save_photo_path} 저장됨')
-            last_capture_time = time.time()
+
+            # last_capture_time = time.time()
             capture_count += 1
+
             
             if capture_count % 4==0:  # 4장의 사진이 촬영되었으면
                 print("4장의 사진이 촬영되었습니다. 녹화를 종료합니다.")
